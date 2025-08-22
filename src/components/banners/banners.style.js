@@ -1,0 +1,25 @@
+import { COLORS, FONT_SIZE } from "../../constants/theme"
+
+export const styles = {
+    icone: {
+        width: 220,
+        height: 120,
+        borderRadius: 6
+    },
+    banner: {
+        paddingRight: 10,
+        marginTop: 15,
+        marginBottom: 15
+    },
+    texto: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#333",
+        textAlign: "center",
+    },
+    descricao: {
+        fontSize: FONT_SIZE.xsm,
+        color: COLORS.dark_gray,
+        textAlign: "center"
+    }
+}
