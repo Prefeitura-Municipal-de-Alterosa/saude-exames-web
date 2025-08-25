@@ -3,6 +3,8 @@
 Este projeto foi desenvolvido utilizando **React Native** com **Expo**, permitindo rodar tanto em dispositivos móveis quanto no navegador (modo web).
 
 ---
+baixar o projeto
+git remote set-url origin https://[token]@github.com/Prefeitura-Municipal-de-Alterosa/saude-exames-web.git 
 
 ## 🚀 Requisitos
 
