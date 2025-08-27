@@ -21,7 +21,7 @@ function Principal() {
             }
         }} />
 
-        <Tab.Screen name="favoritos" component={AbaFavoritos} options={{
+        {/* <Tab.Screen name="favoritos" component={AbaFavoritos} options={{
             title: "Favoritos",
             headerTitleAlign: "center",
             headerShadowVisible: false,
@@ -30,9 +30,9 @@ function Principal() {
                 return <Image source={icons.abafavorito}
                     style={{ width: 25, height: 25, opacity: focused ? 1 : 0.3 }} />
             }
-        }} />
+        }} /> */}
 
-        <Tab.Screen name="pedidos" component={AbaPedidos} options={{
+        {/* <Tab.Screen name="pedidos" component={AbaPedidos} options={{
             title: "Pedidos",
             headerTitleAlign: "center",
             headerShadowVisible: false,
@@ -41,7 +41,7 @@ function Principal() {
                 return <Image source={icons.abaPedido}
                     style={{ width: 25, height: 25, opacity: focused ? 1 : 0.3 }} />
             }
-        }} />
+        }} /> */}
 
         <Tab.Screen name="perfil" component={AbaPerfil} options={{
             title: "Meu Perfil",
