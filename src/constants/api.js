@@ -1,10 +1,9 @@
 import axios from "axios";
-
-const BASE_URL = "https://province-africa-title-defining.trycloudflare.com";
+import link from "./link.json"; // 👈 caminho relativo ao api.js
 
 const api = axios.create({
-    baseURL: BASE_URL,
-    timeout: 10000
+  baseURL: link.url,
+  timeout: 10000
 });
 
 export default api;
