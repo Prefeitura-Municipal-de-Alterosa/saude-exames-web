@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "foodie-mobile",
-    "slug": "foodie-mobile",
+    "name": "saude-exames-web",
+    "slug": "saude-exames-web",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,6 +22,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "eas": {
+      "projectId": ""
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b319aaf6-cd40-456b-a051-e15f658457b6"
+      }
+    },
+    "owner": "gabrielruas40"
   }
 }

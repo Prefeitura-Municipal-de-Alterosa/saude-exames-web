@@ -55,7 +55,7 @@ function Marcar(props) {
 
     const nomePaciente = agendamento.nome_paciente || "o paciente";
     const confirmar = window.confirm(
-      `Deseja realmente marcar este agendamento?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+      `Deseja realmente Entregar Este Resultado?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
     );
 
     if (!confirmar) {
@@ -74,7 +74,7 @@ function Marcar(props) {
         protocolo_id: agendamento.protocolo_id,
         data_inicio: dataExame,
         data_agendado: dataFormatada,
-        status: "FINALIZADO",
+        status: "ENTREGUE",
       };
 
       const response = await api.put("/agendamentos/" + agendamento.id, payload);
@@ -84,7 +84,7 @@ function Marcar(props) {
       }
 
       window.alert(
-        `✅ coleta Realizada Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+        `✅ Entrega Realizada Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
       );
       LoadDestaque();
     } catch (error) {
@@ -102,7 +102,7 @@ function Marcar(props) {
     try {
       const response = await api.get("/agendamentos");
       const lista = response.data || [];
-      const aguardando = lista.filter((item) => item.status === "FINALIZADO");
+      const aguardando = lista.filter((item) => item.status === "FINALIZADO" || item.status === "ENTREGUE");
 
       const responseExame = await api.get("/exames");
       const exames = responseExame.data || [];
@@ -174,7 +174,7 @@ function Marcar(props) {
     >
       <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <Header texto="Cadastrar Paciente" />
+          <Header texto="Resultados do Laboratório" />
 
           <View style={styles.containerBack}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -194,7 +194,7 @@ function Marcar(props) {
 
           <View style={{ marginTop: 20 }}>
             <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 10 }}>
-              Coleta Aguardando:
+              Resultado Aguardando Entraga:
             </Text>
 
             {agendamentos?.length > 0 ? (
@@ -213,12 +213,13 @@ function Marcar(props) {
                   <Text>Exame: {agendamento.nome_exame}</Text>
                   <Text>Protocolo: {agendamento.protocolo_id}</Text>
                   <Text>Status: {agendamento.status}</Text>
-                  <Text>Data Início: {agendamento.data_inicio}</Text>
+                  <Text>Data Andamneto: {agendamento.data_inicio}</Text>
+                  <Text>Data Inicio : {agendamento.data_agendado}</Text>
                 </TouchableOpacity>
               ))
             ) : (
               <Text style={{ fontStyle: "italic" }}>
-                Nenhum agendamento com status "aguardando".
+                Nenhum Resultado.
               </Text>
             )}
           </View>

@@ -1,4 +1,56 @@
-import React, { useEffect, useState } from "react";
+// import React, { useRef } from "react";
+
+// function Marcar() {
+//   const inputFileRef = useRef(null);
+
+//   const confirmarAgendamento = async () => {
+//     // ... lógica de atualização do agendamento
+//     // Ao final, dispara o input para selecionar PDF
+//     inputFileRef.current.click();
+//   };
+
+//   const handleFileChange = async (e) => {
+//     const file = e.target.files[0];
+//     if (!file) return;
+
+//     // enviar PDF
+//     const formData = new FormData();
+//     formData.append("arquivo", file);
+//     formData.append("nome", "Nome do Paciente");
+
+//     try {
+//       const response = await fetch("http://localhost:3001/arexames", {
+//         method: "POST",
+//         body: formData,
+//       });
+//       alert("✅ PDF enviado com sucesso!");
+//     } catch (err) {
+//       console.error(err);
+//       alert("❌ Erro ao enviar PDF");
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <button onClick={confirmarAgendamento}>Confirmar Agendamento</button>
+
+//       {/* Input invisível no JSX */}
+//       <input
+//         type="file"
+//         ref={inputFileRef}
+//         style={{ display: "none" }}
+//         accept="application/pdf"
+//         onChange={handleFileChange}
+//       />
+//     </div>
+//   );
+// }
+
+
+
+
+import React, { useEffect, useState,useRef } from "react";
+
 import {
   Image,
   TouchableOpacity,
@@ -21,6 +73,7 @@ import Header from "../../components/header/header.jsx";
 import api from "../../constants/api.js";
 
 function Marcar(props) {
+  const inputFileRef = useRef(null);
   const [nome, setNome] = useState("");
   const [endereco, setEndereco] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -55,7 +108,7 @@ function Marcar(props) {
 
     const nomePaciente = agendamento.nome_paciente || "o paciente";
     const confirmar = window.confirm(
-      `Deseja realmente marcar este agendamento?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+      `Deseja realmente adicionar este Resultado?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
     );
 
     if (!confirmar) {
@@ -84,7 +137,7 @@ function Marcar(props) {
       }
 
       window.alert(
-        `✅ coleta Realizada Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+        `✅ Resultado Realizada Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
       );
       LoadDestaque();
     } catch (error) {
@@ -96,9 +149,36 @@ function Marcar(props) {
     } finally {
       setModalVisible(false);
     }
+    inputFileRef.current.click();
   };
 
+    const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // enviar PDF
+    const formData = new FormData();
+    formData.append("arquivo", file);
+    formData.append("nome", "Nome do Paciente");
+
+    try {
+      const response = await fetch("http://localhost:3001/arexames", {
+        method: "POST",
+        body: formData,
+      });
+      alert("✅ PDF enviado com sucesso!");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Erro ao enviar PDF");
+    }
+  };
+  /////////////////////////////////////////////////////////////////// INICIO funcao add pdf /////////////////////////////////////////
+
+  
+   /////////////////////////////////////////////////////////////////// FIM  funcao add pdf /////////////////////////////////////////
+
   async function LoadDestaque(termo) {
+
     try {
       const response = await api.get("/agendamentos");
       const lista = response.data || [];
@@ -158,12 +238,12 @@ function Marcar(props) {
       setLoading(false);
 
       if (response.data) {
-        Alert.alert("Sucesso", "Paciente cadastrado com sucesso!");
+        window.alert("Sucesso", "Paciente cadastrado com sucesso!");
         LoadDestaque();
       }
     } catch (error) {
       setLoading(false);
-      Alert.alert("Erro", error.response?.data?.error || "Erro ao salvar.");
+      window.alert("Erro", error.response?.data?.error || "Erro ao salvar.");
     }
   };
 
@@ -174,7 +254,7 @@ function Marcar(props) {
     >
       <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <Header texto="Cadastrar Paciente" />
+          <Header texto="Resultado ao Laboratório" />
 
           <View style={styles.containerBack}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -194,7 +274,7 @@ function Marcar(props) {
 
           <View style={{ marginTop: 20 }}>
             <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 10 }}>
-              Coleta Aguardando:
+              Resultado Aguardando:
             </Text>
 
             {agendamentos?.length > 0 ? (
@@ -214,11 +294,22 @@ function Marcar(props) {
                   <Text>Protocolo: {agendamento.protocolo_id}</Text>
                   <Text>Status: {agendamento.status}</Text>
                   <Text>Data Início: {agendamento.data_inicio}</Text>
+                  <div>
+                <button >Confirmar Agendamento</button>
+
+                {/* Input invisível no JSX */}
+                <input         type="file"
+                  ref={inputFileRef}
+                  style={{ display: "none" }}
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                />
+              </div>
                 </TouchableOpacity>
               ))
             ) : (
               <Text style={{ fontStyle: "italic" }}>
-                Nenhum agendamento com status "aguardando".
+                Nenhum Resultado "aguardando".
               </Text>
             )}
           </View>
@@ -243,7 +334,7 @@ function Marcar(props) {
                 alignItems: "center",
               }}
             >
-              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data do exame</Text>
+              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data Resultado Exame</Text>
               <input
                 type="date"
                 value={dataSelecionada}
@@ -262,6 +353,7 @@ function Marcar(props) {
         </Modal>
       </View>
     </KeyboardAvoidingView>
+    
   );
 }
 

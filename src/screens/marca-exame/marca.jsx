@@ -174,7 +174,7 @@ function Marcar(props) {
     >
       <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <Header texto="Cadastrar Paciente" />
+          <Header texto="Agendar Coleta" />
 
           <View style={styles.containerBack}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -194,7 +194,7 @@ function Marcar(props) {
 
           <View style={{ marginTop: 20 }}>
             <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 10 }}>
-              Agendamentos Aguardando:
+              Exames em Espera de Agendamento de Coleta
             </Text>
 
             {agendamentos?.length > 0 ? (
@@ -218,7 +218,7 @@ function Marcar(props) {
               ))
             ) : (
               <Text style={{ fontStyle: "italic" }}>
-                Nenhum agendamento com status "aguardando".
+                Nenhum "Exames em Espera de Agendamento de Coleta".
               </Text>
             )}
           </View>
@@ -243,7 +243,7 @@ function Marcar(props) {
                 alignItems: "center",
               }}
             >
-              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data do exame</Text>
+              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data da Coleta para exame</Text>
               <input
                 type="date"
                 value={dataSelecionada}

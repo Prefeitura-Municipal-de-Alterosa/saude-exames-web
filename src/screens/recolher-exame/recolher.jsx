@@ -55,7 +55,7 @@ function Marcar(props) {
 
     const nomePaciente = agendamento.nome_paciente || "o paciente";
     const confirmar = window.confirm(
-      `Deseja realmente marcar este agendamento?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+      `Deseja realmente Enviar exames?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
     );
 
     if (!confirmar) {
@@ -84,7 +84,7 @@ function Marcar(props) {
       }
 
       window.alert(
-        `✅ coleta Realizada Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+        `✅ Exame Enviado Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
       );
       LoadDestaque();
     } catch (error) {
@@ -135,7 +135,7 @@ function Marcar(props) {
 
   const validarCampos = () => {
     if (!nome || !endereco || !telefone || !dataNascimento || !cpf) {
-      Alert.alert("Atenção", "Preencha todos os campos.");
+      window.alert("Atenção", "Preencha todos os campos.");
       return false;
     }
     return true;
@@ -158,12 +158,12 @@ function Marcar(props) {
       setLoading(false);
 
       if (response.data) {
-        Alert.alert("Sucesso", "Paciente cadastrado com sucesso!");
+        window.alert("Sucesso", "Paciente cadastrado com sucesso!");
         LoadDestaque();
       }
     } catch (error) {
       setLoading(false);
-      Alert.alert("Erro", error.response?.data?.error || "Erro ao salvar.");
+      window.alert("Erro", error.response?.data?.error || "Erro ao salvar.");
     }
   };
 
@@ -174,7 +174,7 @@ function Marcar(props) {
     >
       <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <Header texto="Cadastrar Paciente" />
+          <Header texto="Agendar Coleta" />
 
           <View style={styles.containerBack}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -243,7 +243,7 @@ function Marcar(props) {
                 alignItems: "center",
               }}
             >
-              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data do exame</Text>
+              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data do Envio Para Laboratorio</Text>
               <input
                 type="date"
                 value={dataSelecionada}

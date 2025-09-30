@@ -121,5 +121,13 @@ Copy
 Edit
 
 ---
+gerar e faze deploy no servidor do explo 
+npx expo export
+eas deploy
+
+----
+para gerar uma versao para web
+npx expo export --platform web
+npx serve dist   
 
 👉 Quer que eu já monte esse **README.md** direto em arquivo pronto (`README.md

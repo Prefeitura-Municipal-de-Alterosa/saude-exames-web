@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://portalaulas.online";
+const BASE_URL = "https://frequencies-distinct-booth-hit.trycloudflare.com";
                       // 
 
 const api = axios.create({
