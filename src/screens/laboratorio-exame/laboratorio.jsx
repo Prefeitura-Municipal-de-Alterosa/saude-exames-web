@@ -1,52 +1,3 @@
-// import React, { useRef } from "react";
-
-// function Marcar() {
-//   const inputFileRef = useRef(null);
-
-//   const confirmarAgendamento = async () => {
-//     // ... lógica de atualização do agendamento
-//     // Ao final, dispara o input para selecionar PDF
-//     inputFileRef.current.click();
-//   };
-
-//   const handleFileChange = async (e) => {
-//     const file = e.target.files[0];
-//     if (!file) return;
-
-//     // enviar PDF
-//     const formData = new FormData();
-//     formData.append("arquivo", file);
-//     formData.append("nome", "Nome do Paciente");
-
-//     try {
-//       const response = await fetch("http://localhost:3001/arexames", {
-//         method: "POST",
-//         body: formData,
-//       });
-//       alert("✅ PDF enviado com sucesso!");
-//     } catch (err) {
-//       console.error(err);
-//       alert("❌ Erro ao enviar PDF");
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <button onClick={confirmarAgendamento}>Confirmar Agendamento</button>
-
-//       {/* Input invisível no JSX */}
-//       <input
-//         type="file"
-//         ref={inputFileRef}
-//         style={{ display: "none" }}
-//         accept="application/pdf"
-//         onChange={handleFileChange}
-//       />
-//     </div>
-//   );
-// }
-
-
 
 
 import React, { useEffect, useState,useRef } from "react";
@@ -211,6 +162,7 @@ function Marcar(props) {
     } catch (error) {
       window.alert(error.response?.data?.error || "Ocorreu um erro. Tente novamente mais tarde");
     }
+    salvarPaciente();
   }
 
   const validarCampos = () => {

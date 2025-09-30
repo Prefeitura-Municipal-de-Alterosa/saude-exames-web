@@ -85,6 +85,14 @@ function AbaHome(props) {
           ordem: 5,
           link: "finalizado",
         },
+         {
+          id_banner: 6,
+          icone: "https://i.pinimg.com/736x/23/0c/10/230c10f7d089f6f39f62c6e558178fdb.jpg",
+          id_empresa: 6,
+          nome: "pdf",
+          ordem: 6,
+          link: "pdf",
+        },
       ]);
     } catch (error) {
       Alert.alert("Erro", error.response?.data?.error || "Ocorreu um erro ao carregar banners.");
