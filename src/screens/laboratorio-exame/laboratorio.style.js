@@ -39,6 +39,11 @@ export const styles = {
     top: 30,
     left: 15
   },
+  containerGo: {
+    position: "absolute",
+    top: 60,
+    left: 200
+  },
 
   back: {
     width: 40,

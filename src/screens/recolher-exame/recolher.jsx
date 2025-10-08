@@ -214,6 +214,7 @@ function Marcar(props) {
                   <Text>Protocolo: {agendamento.protocolo_id}</Text>
                   <Text>Status: {agendamento.status}</Text>
                   <Text>Data Início: {agendamento.data_inicio}</Text>
+                  <Text>Data Agendamento: {agendamento.data_agendado}</Text>
                 </TouchableOpacity>
               ))
             ) : (

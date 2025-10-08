@@ -1,4 +1,56 @@
-import React, { useEffect, useState, useRef } from "react";
+// import React, { useRef } from "react";
+
+// function Marcar() {
+//   const inputFileRef = useRef(null);
+
+//   const confirmarAgendamento = async () => {
+//     // ... lógica de atualização do agendamento
+//     // Ao final, dispara o input para selecionar PDF
+//     inputFileRef.current.click();
+//   };
+
+//   const handleFileChange = async (e) => {
+//     const file = e.target.files[0];
+//     if (!file) return;
+
+//     // enviar PDF
+//     const formData = new FormData();
+//     formData.append("arquivo", file);
+//     formData.append("nome", "Nome do Paciente");
+
+//     try {
+//       const response = await fetch("http://localhost:3001/arexames", {
+//         method: "POST",
+//         body: formData,
+//       });
+//       alert("✅ PDF enviado com sucesso!");
+//     } catch (err) {
+//       console.error(err);
+//       alert("❌ Erro ao enviar PDF");
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <button onClick={confirmarAgendamento}>Confirmar Agendamento</button>
+
+//       {/* Input invisível no JSX */}
+//       <input
+//         type="file"
+//         ref={inputFileRef}
+//         style={{ display: "none" }}
+//         accept="application/pdf"
+//         onChange={handleFileChange}
+//       />
+//     </div>
+//   );
+// }
+
+
+
+
+import React, { useEffect, useState,useRef } from "react";
+
 import {
   Image,
   TouchableOpacity,
@@ -11,7 +63,6 @@ import {
   Modal,
   Button as RNButton,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 
 import icons from "../../constants/icons.js";
 import { styles } from "./laboratorio.style.js";
@@ -22,6 +73,7 @@ import Header from "../../components/header/header.jsx";
 import api from "../../constants/api.js";
 
 function Marcar(props) {
+  const inputFileRef = useRef(null);
   const [nome, setNome] = useState("");
   const [endereco, setEndereco] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -30,10 +82,8 @@ function Marcar(props) {
   const [agendamentos, setAgendamentos] = useState([]);
   const [busca, setBusca] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [dataSelecionada, setDataSelecionada] = useState(new Date());
-  const [mostrarDatePicker, setMostrarDatePicker] = useState(false);
+  const [dataSelecionada, setDataSelecionada] = useState("");
   const [agendamentoAtual, setAgendamentoAtual] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     LoadDestaque();
@@ -42,8 +92,10 @@ function Marcar(props) {
   // Função para abrir modal e selecionar data
   const abrirModalData = (agendamento) => {
     setAgendamentoAtual(agendamento);
+    setDataSelecionada(agendamento.data_inicio || "");
     setModalVisible(true);
   };
+
   const confirmarAgendamento = async () => {
     const agendamento = agendamentoAtual;
     const dataExame = dataSelecionada;
@@ -56,7 +108,7 @@ function Marcar(props) {
 
     const nomePaciente = agendamento.nome_paciente || "o paciente";
     const confirmar = window.confirm(
-      `Deseja realmente marcar este agendamento?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+      `Deseja realmente adicionar este Resultado?\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
     );
 
     if (!confirmar) {
@@ -85,9 +137,8 @@ function Marcar(props) {
       }
 
       window.alert(
-        `✅ Agendamento marcado com sucesso!\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
+        `✅ Resultado Realizada Com sucesso !\n\nPaciente: ${nomePaciente}\nData do exame: ${dataExame}`
       );
-      LoadDestaque();
     } catch (error) {
       if (error.response?.data?.error) {
         window.alert(error.response.data.error);
@@ -95,11 +146,37 @@ function Marcar(props) {
         window.alert("Ocorreu um erro. Tente novamente mais tarde.");
       }
     } finally {
-      setModalVisible(false);
-    }
+     
+    inputFileRef.current.click();
   };
 
+    const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // enviar PDF
+    const formData = new FormData();
+    formData.append("arquivo", file);
+    formData.append("nome", "Nome do Paciente");
+
+    try {
+      const response = await fetch("http://localhost:3001/arexames", {
+        method: "POST",
+        body: formData,
+      });
+      alert("✅ PDF enviado com sucesso!");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Erro ao enviar PDF");
+    }
+  };
+  /////////////////////////////////////////////////////////////////// INICIO funcao add pdf /////////////////////////////////////////
+
+  
+   /////////////////////////////////////////////////////////////////// FIM  funcao add pdf /////////////////////////////////////////
+
   async function LoadDestaque(termo) {
+
     try {
       const response = await api.get("/agendamentos");
       const lista = response.data || [];
@@ -124,13 +201,13 @@ function Marcar(props) {
 
       const aguardandoFiltrado = termo
         ? aguardandoComNome.filter((item) =>
-          item.nome_paciente.toLowerCase().includes(termo.toLowerCase())
-        )
+            item.nome_paciente.toLowerCase().includes(termo.toLowerCase())
+          )
         : aguardandoComNome;
 
       setAgendamentos(aguardandoFiltrado);
     } catch (error) {
-      Alert.alert("Erro", error.response?.data?.error || "Ocorreu um erro.");
+      window.alert(error.response?.data?.error || "Ocorreu um erro. Tente novamente mais tarde");
     }
   }
 
@@ -141,9 +218,6 @@ function Marcar(props) {
     }
     return true;
   };
-  // const handleFileChange = async (e) => {
-  //     alert("✅ PDF enviado com sucesso!");
-  // };
 
   const salvarPaciente = async () => {
     if (!validarCampos()) return;
@@ -159,14 +233,15 @@ function Marcar(props) {
         cpf,
       });
 
+      setLoading(false);
+
       if (response.data) {
-        Alert.alert("Sucesso", "Paciente cadastrado com sucesso!");
+        window.alert("Sucesso", "Paciente cadastrado com sucesso!");
         LoadDestaque();
       }
     } catch (error) {
-      Alert.alert("Erro", error.response?.data?.error || "Erro ao salvar.");
-    } finally {
       setLoading(false);
+      window.alert("Erro", error.response?.data?.error || "Erro ao salvar.");
     }
   };
 
@@ -187,58 +262,53 @@ function Marcar(props) {
 
           <View style={styles.busca}>
             <TextBox
-              placeholder="Digite o Nome do Paciente"
+              placeholder="Digite o Nome do Paciente ?"
               onChangeText={(texto) => setBusca(texto)}
               value={busca}
               returnKeyType="search"
-              onSubmitEditing={() => LoadDestaque(busca)}
+              onSubmit={LoadDestaque}
             />
           </View>
 
           <View style={{ marginTop: 20 }}>
             <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 10 }}>
-              Exames em Espera de Recebimento
+              Resultado Aguardando:
             </Text>
 
             {agendamentos?.length > 0 ? (
               agendamentos.map((agendamento) => (
-                <View key={agendamento.id}>
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: "#ADD8E6",
-                      padding: 10,
-                      marginBottom: 10,
-                      borderRadius: 10,
-                    }}             
-                    // Aqui vai o link para outra tela
-                    onPress={() => abrirModalData(agendamento)}
-                  >
-                    <Text>Paciente: {agendamento.nome_paciente}</Text>
-                    <Text>Exame: {agendamento.nome_exame}</Text>
-                    <Text>Protocolo: {agendamento.protocolo_id}</Text>
-                    <Text>Status: {agendamento.status}</Text>
-                    <Text>Data Início: {agendamento.data_inicio}</Text>
-                    <Text>Data Agendamento: {agendamento.data_agendado}</Text>
-                  </TouchableOpacity>
+                <TouchableOpacity
+                  key={agendamento.id}
+                  style={{
+                    backgroundColor: "#ADD8E6",
+                    padding: 10,
+                    marginBottom: 10,
+                    borderRadius: 10,
+                  }}
+                  onPress={() => abrirModalData(agendamento)}
+                >
+                  <Text>Paciente: {agendamento.nome_paciente}</Text>
+                  <Text>Exame: {agendamento.nome_exame}</Text>
+                  <Text>Protocolo: {agendamento.protocolo_id}</Text>
+                  <Text>Status: {agendamento.status}</Text>
+                  <Text>Data Início: {agendamento.data_inicio}</Text>
+                  <div>
+                <button >Confirmar Agendamento</button>
 
-                  {/* Botão de voltar dentro do loop (do jeito que você pediu) */}
-                  <View style={styles.containerGo}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        props.navigation.navigate("pdf", {
-                          paciente: agendamento.nome_paciente,
-                          exame: agendamento.nome_exame,
-                          dataAgendamento: agendamento.data_agendado,
-                        })
-                      }
-                    >
-                      <Image source={icons.back3} style={styles.back} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                {/* Input invisível no JSX */}
+                <input         type="file"
+                  ref={inputFileRef}
+                  style={{ display: "none" }}
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                />
+              </div>
+                </TouchableOpacity>
               ))
             ) : (
-              <Text>Nenhum agendamento encontrado</Text>
+              <Text style={{ fontStyle: "italic" }}>
+                Nenhum Resultado "aguardando".
+              </Text>
             )}
           </View>
         </ScrollView>
@@ -262,7 +332,7 @@ function Marcar(props) {
                 alignItems: "center",
               }}
             >
-              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data do Recebimento</Text>
+              <Text style={{ marginBottom: 10, fontWeight: "bold" }}>Escolha a data Resultado Exame</Text>
               <input
                 type="date"
                 value={dataSelecionada}
@@ -281,6 +351,7 @@ function Marcar(props) {
         </Modal>
       </View>
     </KeyboardAvoidingView>
+    
   );
 }
 

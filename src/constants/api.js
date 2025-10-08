@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://frequencies-distinct-booth-hit.trycloudflare.com";
+const BASE_URL = " http://localhost:3001";
                       // 
 
 const api = axios.create({

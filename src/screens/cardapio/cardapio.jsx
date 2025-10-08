@@ -13,7 +13,7 @@ import { styles } from "./cardapio.style.js";
 import icons from "../../constants/icons.js";
 import api from "../../constants/api.js";
 
-function Cardapio() {
+function Cardapio(props) {
   const route = useRoute();
   const navigation = useNavigation();
 
@@ -93,21 +93,25 @@ function Cardapio() {
       const response = await api.post("/agendamentos", payload);
       api.defaults.headers.common["Authorization"] =
         "Bearer " + response.data.token;
-      Alert.alert("Sucesso", "Paciente agendado com sucesso!");
+      window.alert("Sucesso", "Paciente agendado com sucesso!");
+
+      if (navigation) {
+          navigation.navigate("home");
+        }
     } catch (error) {
       const msg = error.response?.data?.error || "Erro ao agendar paciente.";
-      Alert.alert("Erro", msg);
+      window.alert("Erro", msg);
     }
   }
 
   function selecionarExame(exame) {
     setExameSelecionado(exame.id);
-    Alert.alert("Exame selecionado", exame.nome);
+    window.alert("Exame selecionado", exame.nome);
   }
 
   function selecionarProtocolo(valor) {
     setProtocoloSelecionado(valor);
-    Alert.alert("Protocolo selecionado", `Nível: ${valor}`);
+    window.alert("Protocolo selecionado", `Nível: ${valor}`);
   }
 
   function abrirModalData(agendamento) {
@@ -116,6 +120,38 @@ function Cardapio() {
       `Status: ${agendamento.status}\nData Início: ${agendamento.data_inicio}\nData Agendamento: ${agendamento.data_agendado}`
     );
   }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // FormData com o PDF e o nome do paciente
+    const formData = new FormData();
+    formData.append("arquivo", file);
+    formData.append("nome", paciente); // passa o paciente do parâmetro
+    formData.append("exame", exame);  // passa o exame do parâmetro, se quiser
+
+    try {
+      const response = await fetch("http://localhost:3001/arexames", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        Alert.alert("✅ PDF enviado com sucesso!");
+
+        // Se quiser, pode redirecionar para a tela "laboratorio" passando parâmetros
+        if (navigation) {
+          navigation.navigate("laboratorio", { paciente, exame });
+        }
+      } else {
+        Alert.alert("❌ Erro ao enviar PDF");
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert("❌ Erro ao enviar PDF");
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 40 }]}>
@@ -149,30 +185,47 @@ function Cardapio() {
 
         {agendamentos?.length > 0 ? (
           agendamentos.map((agendamento) => (
-            <TouchableOpacity
-              key={agendamento.id}
-              style={{
-                backgroundColor: "#ADD8E6",
-                padding: 12,
-                marginBottom: 10,
-                borderRadius: 12,
-                shadowColor: "#000",
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 2,
-              }}
-              onPress={() => abrirModalData(agendamento)}
-            >
-              <Text style={{ fontWeight: "bold" }}>
-                Status: <Text style={{ fontWeight: "normal" }}>{agendamento.status}</Text>
-              </Text>
-              <Text>
-                Data Início: {new Date(agendamento.data_inicio).toLocaleDateString()}
-              </Text>
-              <Text>
-                Data Agendamento: {new Date(agendamento.data_agendado).toLocaleDateString()}
-              </Text>
-            </TouchableOpacity>
+            <View key={agendamento.id}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#ADD8E6",
+                  padding: 12,
+                  marginBottom: 10,
+                  borderRadius: 12,
+                  shadowColor: "#000",
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+                onPress={() => abrirModalData(agendamento)}
+              >
+                <Text style={{ fontWeight: "bold" }}>
+                  Status: <Text style={{ fontWeight: "normal" }}>{agendamento.status}</Text>
+                </Text>
+                <Text>
+                  Data Início: {new Date(agendamento.data_inicio).toLocaleDateString()}
+                </Text>
+                <Text>
+                  Data Agendamento: {agendamento.data_agendado}
+                </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    props.navigation.navigate("pdfDown", {
+                      paciente: nome,
+                      exame: exames[agendamento.exame_id]?.nome || "Exame não encontrado",
+                      finalizado: agendamento.data_agendado
+                    })
+                  }
+                >
+                  <Image source={icons.back3} style={styles.back} />
+                </TouchableOpacity>
+              </TouchableOpacity>
+
+            </View>
+
+
+
+
           ))
         ) : (
           <Text style={{ fontStyle: "italic", color: "#7f8c8d" }}>

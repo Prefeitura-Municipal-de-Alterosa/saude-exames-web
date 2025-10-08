@@ -2,13 +2,13 @@ import { COLORS, FONT_SIZE } from "../../constants/theme"
 
 export const styles = {
 
-    container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",        // CENTRALIZA HORIZONTAL
-    justifyContent: "center",    // CENTRALIZA VERTICAL (cuidado, pode cortar se tiver scroll)
-    padding: 20,
-  },
+  container: {
+  flex: 1,
+  backgroundColor: "#fff",
+  alignItems: "center",   // mantém centralização horizontal
+  padding: 40,            // mantém padding
+},
+
   containerBack: {
     position: "absolute",
     top: 40,

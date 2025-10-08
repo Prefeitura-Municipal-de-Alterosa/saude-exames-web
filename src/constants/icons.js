@@ -1,5 +1,6 @@
 import back from "../assets/back.png";
 import back2 from "../assets/back2.png";
+import back3 from "../assets/back3.png";
 import remove from "../assets/delete.png";
 import logo from "../assets/logo.png";
 import paciente from "../assets/paciente.jpg";
@@ -23,5 +24,5 @@ import mais from "../assets/mais.png";
 export default {
     back, remove, logo, cart, favoritoFull, empty, paciente,
     endereco, more, dados, logout, abaHome, abafavorito, abaPedido, abaPerfil,
-    back2, location, produto, menos, mais, favorito
+    back2, back3 ,location, produto, menos, mais, favorito
 };

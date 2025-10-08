@@ -8,6 +8,7 @@ import marcaExame from "./screens/marca-exame/marca.jsx";
 import recolherExame from "./screens/recolher-exame/recolher.jsx";
 import laboratorioExame from "./screens/laboratorio-exame/laboratorio.jsx";
 import pdf from "./screens/pdf/pdf.jsx";
+import pdfDown from "./screens/pdf/pdfDown.jsx";
 import finalizadoExame from "./screens/laboratorio-finalizado/exame-finalizado.jsx";
 import addPaciente from "./screens/paciente/addPaciente.jsx";
 import DetalhePedido from "./screens/detalhe-pedido/detalhe-pedido.jsx";
@@ -83,6 +84,9 @@ function RoutesAuth() {
             }} />
 
             <Stack.Screen name="pdf" component={pdf} options={{
+                headerShown: false
+            }} />
+            <Stack.Screen name="pdfDown" component={pdfDown} options={{
                 headerShown: false
             }} />
 
