@@ -1,65 +1,60 @@
 import React, { useRef } from "react";
-import { Text, Alert } from "react-native";
 import api from "../../constants/api.js";
 
 function Pdf({ route, navigation }) {
-  const { paciente, exame, dataAgendamento } = route.params; // Recebe parâmetros da tela anterior
+  // Parâmetros vindos da tela anterior
+  const { paciente, exame, dataAgendamento, cpf } = route?.params || {};
+
   const inputFileRef = useRef(null);
 
-  // Função que abre o seletor de arquivos
-  const confirmarAgendamento = async () => {
+  // Abre o seletor de arquivo
+  const confirmarAgendamento = () => {
     inputFileRef.current.click();
   };
 
-  // Função que envia o PDF selecionado
+  // Envia o arquivo selecionado
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // FormData com o PDF e o nome do paciente
     const formData = new FormData();
     formData.append("arquivo", file);
-    formData.append("nome", paciente); // passa o paciente do parâmetro
-    formData.append("exame", exame);  // passa o exame do parâmetro, se quiser
-    formData.append("finalizado", dataAgendamento);  // passa o exame do parâmetro, se quiser
+    formData.append("nome", paciente);
+    formData.append("exame", exame);
+    formData.append("finalizado", dataAgendamento);
+    formData.append("cpf", cpf);
 
     try {
-      const response = await fetch("http://localhost:3001/arexames", {
-        method: "POST",
-        body: formData,
+      const response = await api.post("/arexames", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (response.ok) {
-        Alert.alert("✅ PDF enviado com sucesso!");
+      if (response.data) {
+        window.alert("✅ PDF enviado com sucesso!");
 
-        // Se quiser, pode redirecionar para a tela "laboratorio" passando parâmetros
         if (navigation) {
           navigation.navigate("laboratorio", { paciente, exame });
         }
       } else {
-        Alert.alert("❌ Erro ao enviar PDF");
+        console.error("Erro ao enviar PDF:", response);
+        window.alert("❌ Erro ao enviar PDF. Verifique o servidor.");
       }
     } catch (err) {
-      console.error(err);
-      Alert.alert("❌ Erro ao enviar PDF");
+      console.error("Erro ao enviar o arquivo:", err);
+      window.alert("❌ Ocorreu um erro ao enviar o PDF. Verifique a conexão.");
     }
   };
 
+
   return (
-    <div>
-      <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
-        Paciente: {paciente}
-      </Text>
-      <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
-        Exame: {exame}
-      </Text>
-      <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
-        Data da Entrega: {dataAgendamento}
-      </Text>
+    <div style={{ padding: 20, backgroundColor: "#222", color: "#fff" }}>
+      <p><strong>Paciente:</strong> {paciente}</p>
+      <p><strong>Exame:</strong> {exame}</p>
+      <p><strong>Data da Entrega:</strong> {dataAgendamento}</p>
 
-      <button onClick={confirmarAgendamento}>Confirmar Agendamento</button>
+      <button onClick={confirmarAgendamento}>Selecionar PDF</button>
 
-      {/* Input invisível para selecionar PDF */}
+      {/* input invisível */}
       <input
         type="file"
         ref={inputFileRef}
