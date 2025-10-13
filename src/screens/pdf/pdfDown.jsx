@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { View, Text, TouchableOpacity, Alert, Platform } from "react-native";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import api from "../../constants/api.js";
 
 function Pdf({ route, navigation }) {
   const { paciente, exame, finalizado } = route.params;
@@ -20,37 +21,42 @@ function Pdf({ route, navigation }) {
       // "id_pdf": "1759843743351-697498109.pdf",
       // "id_exame": "Raio‑X de tórax",
       // "finalizado": "2025-10-07T13:28:49.119Z"
+      //window.alert(`resultado obitidop na passagem de paramnetros :\n${paciente+"|"+exame+"|"+finalizado}`);
+      const urlFist = `/arexamesPesquisar?nome=${encodeURIComponent(paciente)}&exame=${encodeURIComponent(exame)}&finalizado=${encodeURIComponent(finalizado)}`;
+      //const urlFist = "/arexamesPesquisar?nome=Adriana%20Teixeira&exame=Hemograma%20completo&finalizado=2025-10-09T11%3A36%3A33.965Z";
+      
+      const response = await api.get(urlFist);
+      const resultados = response.data;
+      console.log("Resultado da API:", resultados);
 
-      //const url = `http://localhost:3001/arexamesPesquisar?nome=${encodeURIComponent(paciente)}&exame=${encodeURIComponent(exame)}&finalizado=${encodeURIComponent(finalizado)}`;
-      const url = "http://localhost:3001/arexamesPesquisar?nome=Adriana%20Teixeira&exame=Hemograma%20completo&finalizado=2025-10-09T11%3A36%3A33.965Z";
-      // Faz a requisição GET
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const resultados = await response.json();
-      const textoResultados = JSON.stringify(resultados, null, 2);
-      console.log(textoResultados)
-      window.alert(textoResultados);
-
-      if (!resultados || resultados.length === 0) {
-
+      // Verifica se retornou dados válidos
+      if (!Array.isArray(resultados) || resultados.length === 0) {
+        console.warn("Nenhum resultado encontrado na resposta da API.");
+        window.alert("Nenhum resultado encontrado.");
         return;
       }
 
-      // Pega o primeiro resultado (ou ajuste se quiser outro)
-      const arquivoNome = resultados[0].id_pdf;
-      window.alert(arquivoNome);
-      const pdfUrl = `http://localhost:3001/arexames/arquivo/${arquivoNome}`;
+      // Exibe os resultados de forma organizada no console (para depuração)
+      console.table(resultados);
+
+      // Monta um texto legível para o alerta (limitando o tamanho)
+      const textoResultados = JSON.stringify(resultados.slice(0, 3), null, 2);
+     // window.alert(`Resultados obtidos:\n${textoResultados}`);
+
+      // Pega o primeiro resultado e valida se possui o campo id_pdf
+      const primeiroResultado = resultados[0];
+      const arquivoNome = primeiroResultado?.id_pdf;
+
+      if (!arquivoNome) {
+        console.error("Campo 'id_pdf' não encontrado no primeiro resultado.");
+        window.alert("Erro: o campo 'id_pdf' não foi retornado pela API.");
+        return;
+      }
+
+      const pdfUrl = `${api.defaults.baseURL}/arexames/arquivo/${arquivoNome}`;
 
       if (Platform.OS === "web") {
-        const newTab = window.open("", "_blank"); // abre primeiro
-        const response = await fetch(pdfUrl);
-        // depois você pode atualizar o conteúdo se quiser
-        newTab.location.href = pdfUrl;
+        window.location.href = pdfUrl;
       } else {
         const fileUri = FileSystem.documentDirectory + arquivoNome;
         const { uri } = await FileSystem.downloadAsync(pdfUrl, fileUri);
@@ -62,9 +68,9 @@ function Pdf({ route, navigation }) {
 
         }
       }
-      // if (navigation) {
-      //       navigation.navigate("home");
-      //     }
+      if (navigation) {
+            navigation.navigate("home");
+          }
     } catch (error) {
       console.error("Erro ao abrir/baixar PDF:", error);
       Alert.alert("Erro", "Não foi possível abrir o PDF");

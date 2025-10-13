@@ -59,10 +59,19 @@ function Cardapio(props) {
 
   async function LoadExames() {
     try {
+
       const response = await api.get("/exames");
       if (response.data) {
-        setExames(response.data);
+        console.log("############################### Iniciando Load #####################################");
+        const examesSincronizados = [];
+        response.data.forEach(exame => {
+          examesSincronizados[exame.id] = exame;
+        });
+
+        setExames(examesSincronizados);
+        console.table(exames);
       }
+
     } catch (error) {
       Alert.alert(
         "Erro",
@@ -96,8 +105,8 @@ function Cardapio(props) {
       window.alert("Sucesso", "Paciente agendado com sucesso!");
 
       if (navigation) {
-          navigation.navigate("home");
-        }
+        navigation.navigate("home");
+      }
     } catch (error) {
       const msg = error.response?.data?.error || "Erro ao agendar paciente.";
       window.alert("Erro", msg);
@@ -121,37 +130,37 @@ function Cardapio(props) {
     );
   }
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  // const handleFileChange = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
 
-    // FormData com o PDF e o nome do paciente
-    const formData = new FormData();
-    formData.append("arquivo", file);
-    formData.append("nome", paciente); // passa o paciente do parâmetro
-    formData.append("exame", exame);  // passa o exame do parâmetro, se quiser
+  //   // FormData com o PDF e o nome do paciente
+  //   const formData = new FormData();
+  //   formData.append("arquivo", file);
+  //   formData.append("nome", paciente); // passa o paciente do parâmetro
+  //   formData.append("exame", exame);  // passa o exame do parâmetro, se quiser
 
-    try {
-      const response = await fetch("http://localhost:3001/arexames", {
-        method: "POST",
-        body: formData,
-      });
+  //   try {
+  //     const response = await fetch("http://localhost:3001/arexames", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
 
-      if (response.ok) {
-        Alert.alert("✅ PDF enviado com sucesso!");
+  //     if (response.ok) {
+  //       Alert.alert("✅ PDF enviado com sucesso!");
 
-        // Se quiser, pode redirecionar para a tela "laboratorio" passando parâmetros
-        if (navigation) {
-          navigation.navigate("laboratorio", { paciente, exame });
-        }
-      } else {
-        Alert.alert("❌ Erro ao enviar PDF");
-      }
-    } catch (err) {
-      console.error(err);
-      Alert.alert("❌ Erro ao enviar PDF");
-    }
-  };
+  //       // Se quiser, pode redirecionar para a tela "laboratorio" passando parâmetros
+  //       if (navigation) {
+  //         navigation.navigate("laboratorio", { paciente, exame });
+  //       }
+  //     } else {
+  //       Alert.alert("❌ Erro ao enviar PDF");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     Alert.alert("❌ Erro ao enviar PDF");
+  //   }
+  // };
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 40 }]}>
@@ -201,6 +210,9 @@ function Cardapio(props) {
               >
                 <Text style={{ fontWeight: "bold" }}>
                   Status: <Text style={{ fontWeight: "normal" }}>{agendamento.status}</Text>
+                </Text>
+                <Text>
+                  Exame: {exames[5]?.nome || "Exame não encontrado"}
                 </Text>
                 <Text>
                   Data Início: {new Date(agendamento.data_inicio).toLocaleDateString()}
