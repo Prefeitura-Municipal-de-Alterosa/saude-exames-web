@@ -130,37 +130,7 @@ function Cardapio(props) {
     );
   }
 
-  // const handleFileChange = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
-
-  //   // FormData com o PDF e o nome do paciente
-  //   const formData = new FormData();
-  //   formData.append("arquivo", file);
-  //   formData.append("nome", paciente); // passa o paciente do parâmetro
-  //   formData.append("exame", exame);  // passa o exame do parâmetro, se quiser
-
-  //   try {
-  //     const response = await fetch("http://localhost:3001/arexames", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     if (response.ok) {
-  //       Alert.alert("✅ PDF enviado com sucesso!");
-
-  //       // Se quiser, pode redirecionar para a tela "laboratorio" passando parâmetros
-  //       if (navigation) {
-  //         navigation.navigate("laboratorio", { paciente, exame });
-  //       }
-  //     } else {
-  //       Alert.alert("❌ Erro ao enviar PDF");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     Alert.alert("❌ Erro ao enviar PDF");
-  //   }
-  // };
+ 
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 40 }]}>
