@@ -54,7 +54,6 @@ function Pdf({ route, navigation }) {
       }
 
       const pdfUrl = `${api.defaults.baseURL}/arexames/arquivo/${arquivoNome}`;
-
       if (Platform.OS === "web") {
         window.location.href = pdfUrl;
       } else {
@@ -64,7 +63,7 @@ function Pdf({ route, navigation }) {
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(uri);
         } else {
-          Alert.alert("Download concluído", "Arquivo salvo em: " + uri);
+          window.alert("Download concluído", "Arquivo salvo em: " + uri);
 
         }
       }

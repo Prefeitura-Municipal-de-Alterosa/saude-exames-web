@@ -49,7 +49,9 @@ function AddPaciente(props) {
 
       if (response.data) {
         Alert.alert("Sucesso", "Paciente cadastrado com sucesso!");
-        // props.navigation.goBack(); // Ou navegue para onde desejar
+        if (navigation) {
+          navigation.navigate("home");
+        }
       }
     } catch (error) {
       setLoading(false);
@@ -66,8 +68,8 @@ function AddPaciente(props) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      
-      
+
+
       <View style={styles.container}>
         <ScrollView
           style={styles.scrollView}
@@ -75,10 +77,10 @@ function AddPaciente(props) {
         >
           <Header texto="Cadastrar Paciente" />
           <View style={styles.containerBack}>
-      <TouchableOpacity onPress={() => props.navigation.goBack()}>
-        <Image source={icons.back2} style={styles.back} />
-      </TouchableOpacity>
-    </View>
+            <TouchableOpacity onPress={() => props.navigation.goBack()}>
+              <Image source={icons.back2} style={styles.back} />
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.formGroup}>
             <View style={styles.form}>
