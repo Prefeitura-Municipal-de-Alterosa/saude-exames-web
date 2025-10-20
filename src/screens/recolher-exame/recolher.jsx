@@ -66,7 +66,8 @@ function Marcar(props) {
 
     try {
       const dataAtual = new Date();
-      const dataFormatada = dataAtual.toISOString();
+      const dataBrasilia = new Date(dataAtual.getTime() - 3 * 60 * 60 * 1000); // UTC-3
+      const dataFormatada = dataBrasilia
 
       const payload = {
         paciente_id: agendamento.paciente_id,

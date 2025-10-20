@@ -67,7 +67,8 @@ function Marcar(props) {
 
     try {
       const dataAtual = new Date();
-      const dataFormatada = dataAtual.toISOString();
+      const dataBrasilia = new Date(dataAtual.getTime() - 3 * 60 * 60 * 1000); // UTC-3
+      const dataFormatada = dataBrasilia
 
       const payload = {
         paciente_id: agendamento.paciente_id,
@@ -209,7 +210,7 @@ function Marcar(props) {
                       padding: 10,
                       marginBottom: 10,
                       borderRadius: 10,
-                    }}             
+                    }}
                     // Aqui vai o link para outra tela
                     onPress={() => abrirModalData(agendamento)}
                   >

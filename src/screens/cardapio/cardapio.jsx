@@ -13,7 +13,7 @@ import { styles } from "./cardapio.style.js";
 import icons from "../../constants/icons.js";
 import api from "../../constants/api.js";
 
-function Cardapio(props) {
+function Cardapio() {
   const route = useRoute();
   const navigation = useNavigation();
 
@@ -28,6 +28,7 @@ function Cardapio(props) {
 
   const [exames, setExames] = useState([]);
   const [cardapio, setCardapio] = useState({ categorias: [] });
+  const [exameLista, setExameLista] = useState([]); // ← lista vinda da API /arexames
   const [exameSelecionado, setExameSelecionado] = useState(null);
   const [protocoloSelecionado, setProtocoloSelecionado] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
@@ -36,50 +37,67 @@ function Cardapio(props) {
   useEffect(() => {
     LoadExames();
     LoadDestaque();
+    LoadArexames();
   }, []);
 
+  // 🔹 Carrega agendamentos
   async function LoadDestaque() {
     try {
       const response = await api.get("/agendamentos/" + id_empresa);
       const lista = response.data || [];
-
-      // pega apenas os aguardando
-
       console.log("lista paciente_ID", lista);
-
       setAgendamentos(lista);
     } catch (error) {
       Alert.alert(
         "Erro",
-        error.response?.data?.error ||
-        "Ocorreu um erro. Tente novamente mais tarde"
+        error.response?.data?.error || "Ocorreu um erro. Tente novamente mais tarde"
       );
     }
   }
 
+  // 🔹 Carrega lista de exames disponíveis
   async function LoadExames() {
     try {
-
       const response = await api.get("/exames");
       if (response.data) {
-        console.log("############################### Iniciando Load #####################################");
-        const examesSincronizados = [];
-        response.data.forEach(exame => {
-          examesSincronizados[exame.id] = exame;
-        });
-
+        console.log("🧪 Exames carregados da API");
+        const examesSincronizados = response.data;
         setExames(examesSincronizados);
-        console.table(exames);
+      }
+    } catch (error) {
+      Alert.alert("Erro", error.response?.data?.error || "Erro ao carregar exames.");
+    }
+  }
+
+  // 🔹 Carrega exames anteriores do paciente
+  async function LoadArexames() {
+    try {
+      const response = await api.get("/arexames");
+      const lista = Array.isArray(response.data) ? response.data : [];
+
+      if (!nome) {
+        console.warn("⚠️ Variável 'nome' não definida, retornando lista vazia.");
+        setExameLista([]);
+        return;
       }
 
+      const listaFiltrada = lista.filter(
+        (item) => item.id_pacientecpf?.trim() === nome.trim()
+      );
+
+      console.log("✅ Resultado da API (Arexames):", listaFiltrada);
+      setExameLista(listaFiltrada);
     } catch (error) {
+      console.error("❌ Erro ao carregar exames:", error);
       Alert.alert(
-        "Erro",
-        error.response?.data?.error || "Erro ao carregar exames."
+        "Erro ao carregar exames",
+        error.response?.data?.error ||
+          "Não foi possível carregar a lista de exames. Tente novamente."
       );
     }
   }
 
+  // 🔹 Adiciona paciente à fila
   async function AddicionarFila() {
     if (!exameSelecionado || !protocoloSelecionado) {
       Alert.alert("Atenção", "Por favor, selecione o exame e o protocolo.");
@@ -87,7 +105,7 @@ function Cardapio(props) {
     }
 
     const dataAtual = new Date();
-    const dataFormatada = dataAtual.toISOString(); // formato ISO para API
+    const dataFormatada = dataAtual.toISOString();
     setDataAdicao(dataFormatada);
 
     const payload = {
@@ -102,35 +120,39 @@ function Cardapio(props) {
       const response = await api.post("/agendamentos", payload);
       api.defaults.headers.common["Authorization"] =
         "Bearer " + response.data.token;
-      window.alert("Sucesso", "Paciente agendado com sucesso!");
-
-      if (navigation) {
-        navigation.navigate("home");
-      }
+      Alert.alert("Sucesso", "Paciente agendado com sucesso!");
+      navigation.navigate("home");
     } catch (error) {
       const msg = error.response?.data?.error || "Erro ao agendar paciente.";
-      window.alert("Erro", msg);
+      Alert.alert("Erro", msg);
     }
   }
 
+  // 🔹 Seleciona exame
   function selecionarExame(exame) {
     setExameSelecionado(exame.id);
-    window.alert("Exame selecionado", exame.nome);
+    Alert.alert("Exame selecionado", exame.nome);
   }
 
+  // 🔹 Seleciona protocolo
   function selecionarProtocolo(valor) {
     setProtocoloSelecionado(valor);
-    window.alert("Protocolo selecionado", `Nível: ${valor}`);
+    Alert.alert("Protocolo selecionado", `Nível: ${valor}`);
   }
 
+  // 🔹 Abre modal com dados do exame
   function abrirModalData(agendamento) {
     Alert.alert(
-      "Agendamento",
-      `Status: ${agendamento.status}\nData Início: ${agendamento.data_inicio}\nData Agendamento: ${agendamento.data_agendado}`
+      "Exame",
+      `Exame: ${agendamento.id_exame}\n` +
+        `Paciente: ${agendamento.id_pacientecpf}\n` +
+        `Finalizado: ${
+          agendamento.finalizado
+            ? new Date(agendamento.finalizado).toLocaleString("pt-BR")
+            : "Não finalizado"
+        }`
     );
   }
-
- 
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 40 }]}>
@@ -143,75 +165,86 @@ function Cardapio(props) {
         <Image source={icons.back2} style={styles.back} />
       </TouchableOpacity>
 
-      {/* Imagem do paciente / cardápio */}
-      {cardapio.foto && (
-        <View style={styles.containerFoto}>
-          <Image
-            source={{ uri: cardapio.foto }}
-            style={styles.foto}
-            resizeMode="cover"
-          />
-        </View>
-      )}
-
-
-      {/* Lista de agendamentos */}
+      {/* Lista de Exames Anteriores */}
       <View style={{ marginTop: 20, paddingHorizontal: 15 }}>
         <Text style={{ fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>
-
           📋 Exames Anteriores
         </Text>
 
-        {agendamentos?.length > 0 ? (
-          agendamentos.map((agendamento) => (
-            <View key={agendamento.id}>
+        {Array.isArray(exameLista) && exameLista.length > 0 ? (
+          exameLista.map((arexames, index) => (
+            <View key={arexames.id || index}>
               <TouchableOpacity
                 style={{
-                  backgroundColor: "#ADD8E6",
-                  padding: 12,
-                  marginBottom: 10,
-                  borderRadius: 12,
+                  backgroundColor: "#E0F7FA",
+                  padding: 16,
+                  marginBottom: 14,
+                  borderRadius: 14,
                   shadowColor: "#000",
-                  shadowOpacity: 0.1,
+                  shadowOpacity: 0.15,
                   shadowRadius: 4,
-                  elevation: 2,
+                  elevation: 3,
                 }}
-                onPress={() => abrirModalData(agendamento)}
+                onPress={() => abrirModalData(arexames)}
               >
-                <Text style={{ fontWeight: "bold" }}>
-                  Status: <Text style={{ fontWeight: "normal" }}>{agendamento.status}</Text>
+                <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                  Exame:{" "}
+                  <Text style={{ fontWeight: "normal" }}>
+                    {arexames.id_exame || "Exame não informado"}
+                  </Text>
                 </Text>
-                <Text>
-                  Exame: {exames[5]?.nome || "Exame não encontrado"}
+
+                <Text style={{ marginTop: 4 }}>
+                  Paciente: {arexames.id_pacientecpf || "Não informado"}
                 </Text>
-                <Text>
-                  Data Início: {new Date(agendamento.data_inicio).toLocaleDateString()}
+
+                <Text style={{ marginTop: 4 }}>
+                  Data de Finalização:{" "}
+                  {arexames.finalizado
+                    ? new Date(arexames.finalizado).toLocaleString("pt-BR")
+                    : "Não finalizado"}
                 </Text>
-                <Text>
-                  Data Agendamento: {agendamento.data_agendado}
-                </Text>
+
                 <TouchableOpacity
                   onPress={() =>
-                    props.navigation.navigate("pdfDown", {
-                      paciente: nome,
-                      exame: exames[agendamento.exame_id]?.nome || "Exame não encontrado",
-                      finalizado: agendamento.data_agendado
+                    navigation.navigate("pdfDown", {
+                      paciente: arexames.id_pacientecpf,
+                      exame: arexames.id_exame,
+                      finalizado: arexames.finalizado,
+                      pdf: arexames.id_pdf,
                     })
                   }
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#0288D1",
+                    padding: 10,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
                 >
-                  <Image source={icons.back3} style={styles.back} />
+                  <Image
+                    source={icons.back3}
+                    style={{ width: 20, height: 20, tintColor: "#fff" }}
+                  />
+                  <Text
+                    style={{
+                      color: "#fff",
+                      marginLeft: 6,
+                      fontWeight: "600",
+                      fontSize: 15,
+                    }}
+                  >
+                    Ver PDF
+                  </Text>
                 </TouchableOpacity>
               </TouchableOpacity>
-
             </View>
-
-
-
-
           ))
         ) : (
           <Text style={{ fontStyle: "italic", color: "#7f8c8d" }}>
-            Nenhum agendamento encontrado.
+            Nenhum exame encontrado.
           </Text>
         )}
       </View>
@@ -222,12 +255,14 @@ function Cardapio(props) {
           👤 Dados do Paciente
         </Text>
         <View style={styles.headerTextos}>
-          <Text style={styles.info}>Nome: {nome}
-            CPF: {cpf}
-            Endereço: {endereco}
-            Telefone: {telefone}
-            Nascimento: {data_nascimento}
-            Paciente ID: {id_empresa}</Text>
+          <Text style={styles.info}>
+            Nome: {nome}{"\n"}
+            CPF: {cpf}{"\n"}
+            Endereço: {endereco}{"\n"}
+            Telefone: {telefone}{"\n"}
+            Nascimento: {data_nascimento}{"\n"}
+            Paciente ID: {id_empresa}
+          </Text>
 
           {exameSelecionado && (
             <Text style={[styles.info, { color: "#2980b9" }]}>
@@ -247,7 +282,7 @@ function Cardapio(props) {
         </View>
       </View>
 
-      {/* Lista de exames */}
+      {/* Lista de exames disponíveis */}
       <View style={{ marginTop: 20, paddingHorizontal: 15 }}>
         <Text style={{ fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>
           🧪 Exames Disponíveis
@@ -317,7 +352,6 @@ function Cardapio(props) {
         <Button title="➕ Adicionar Paciente" onPress={AddicionarFila} />
       </View>
     </ScrollView>
-
   );
 }
 
