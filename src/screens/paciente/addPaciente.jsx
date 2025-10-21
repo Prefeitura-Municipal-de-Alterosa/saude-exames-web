@@ -120,7 +120,7 @@ function AddPaciente({ props, navigation }) {
         >
           <Header texto="Cadastrar Paciente" />
           <View style={styles.containerBack}>
-            <TouchableOpacity onPress={() => props.navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image source={icons.back2} style={styles.back} />
             </TouchableOpacity>
           </View>
@@ -202,7 +202,7 @@ function AddPaciente({ props, navigation }) {
 
             <View style={styles.form}>
               <Button
-                texto={loading ? "Salvando..." : "Salvar"}
+                texto={loading ? "Salvando..." : "Salvar Paciente"}
                 onPress={salvarPaciente}
                 disabled={loading}
               />
@@ -220,7 +220,7 @@ function AddPaciente({ props, navigation }) {
 
             <View style={styles.form}>
               <Button
-                texto={loading2 ? "Salvando..." : "Salvar"}
+                texto={loading2 ? "Salvando..." : "Salvar Exame"}
                 onPress={salvarExame}
                 disabled={loading2}
               />

@@ -10,66 +10,61 @@ function Pdf({ route, navigation }) {
 
   const abrirOuBaixarPDF = async () => {
     try {
-      // const paciente = "Ana Oliveira";
-      // const exame = "Raio‑X de tórax";
-      // const finalizado = "2025-10-07T13:28:49.119Z";
+      // Monta a URL de pesquisa
+      const urlFist = `/arexamesPesquisar?nome=${encodeURIComponent(
+        paciente
+      )}&exame=${encodeURIComponent(exame)}&finalizado=${encodeURIComponent(
+        finalizado
+      )}`;
 
-      // Monta a URL com query params  http://localhost:3001/arexamesPesquisar?nome=Ana%20Oliveira&exame=Raio%E2%80%91X%20de%20t%C3%B3rax&finalizado=2025-10-07T13%3A28%3A49.119Z
-      // Resultado   
-      // "id": 38,
-      // "id_pacientecpf": "Ana Oliveira",
-      // "id_pdf": "1759843743351-697498109.pdf",
-      // "id_exame": "Raio‑X de tórax",
-      // "finalizado": "2025-10-07T13:28:49.119Z"
-      //window.alert(`resultado obitidop na passagem de paramnetros :\n${paciente+"|"+exame+"|"+finalizado}`);
-      const urlFist = `/arexamesPesquisar?nome=${encodeURIComponent(paciente)}&exame=${encodeURIComponent(exame)}&finalizado=${encodeURIComponent(finalizado)}`;
-      //const urlFist = "/arexamesPesquisar?nome=Adriana%20Teixeira&exame=Hemograma%20completo&finalizado=2025-10-09T11%3A36%3A33.965Z";
-      
-      const response = await api.get(urlFist);
-      const resultados = response.data;
+      // Busca o PDF correspondente
+      const pesquisaResponse = await api.get(urlFist);
+      const resultados = pesquisaResponse.data;
       console.log("Resultado da API:", resultados);
 
-      // Verifica se retornou dados válidos
       if (!Array.isArray(resultados) || resultados.length === 0) {
-        console.warn("Nenhum resultado encontrado na resposta da API.");
         window.alert("Nenhum resultado encontrado.");
         return;
       }
 
-      // Exibe os resultados de forma organizada no console (para depuração)
-      console.table(resultados);
-
-      // Monta um texto legível para o alerta (limitando o tamanho)
-      const textoResultados = JSON.stringify(resultados.slice(0, 3), null, 2);
-     // window.alert(`Resultados obtidos:\n${textoResultados}`);
-
-      // Pega o primeiro resultado e valida se possui o campo id_pdf
       const primeiroResultado = resultados[0];
       const arquivoNome = primeiroResultado?.id_pdf;
 
       if (!arquivoNome) {
-        console.error("Campo 'id_pdf' não encontrado no primeiro resultado.");
         window.alert("Erro: o campo 'id_pdf' não foi retornado pela API.");
         return;
       }
 
+      // Agora monta a URL completa do PDF
       const pdfUrl = `${api.defaults.baseURL}/arexames/arquivo/${arquivoNome}`;
+
       if (Platform.OS === "web") {
-        window.location.href = pdfUrl;
+        // Faz o download no navegador com token já configurado no Axios
+        const fileResponse = await api.get(`/arexames/arquivo/${arquivoNome}`, {
+          responseType: "blob",
+        });
+
+        const url = window.URL.createObjectURL(fileResponse.data);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = arquivoNome;
+        link.click();
+        window.URL.revokeObjectURL(url);
       } else {
+        // Baixa o arquivo no celular (Android/iOS)
         const fileUri = FileSystem.documentDirectory + arquivoNome;
         const { uri } = await FileSystem.downloadAsync(pdfUrl, fileUri);
 
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(uri);
         } else {
-          window.alert("Download concluído", "Arquivo salvo em: " + uri);
-
+          Alert.alert("Download concluído", "Arquivo salvo em: " + uri);
         }
       }
+
       if (navigation) {
-            navigation.navigate("home");
-          }
+        navigation.navigate("home");
+      }
     } catch (error) {
       console.error("Erro ao abrir/baixar PDF:", error);
       Alert.alert("Erro", "Não foi possível abrir o PDF");
@@ -81,9 +76,15 @@ function Pdf({ route, navigation }) {
 
   return (
     <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 18, fontWeight: "bold" }}>Paciente: {paciente}</Text>
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>Exame: {exame}</Text>
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>Finalizado: {finalizado}</Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+        Paciente: {paciente}
+      </Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>
+        Exame: {exame}
+      </Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>
+        Finalizado: {finalizado}
+      </Text>
 
       <TouchableOpacity
         onPress={abrirOuBaixarPDF}
@@ -94,7 +95,9 @@ function Pdf({ route, navigation }) {
           alignItems: "center",
         }}
       >
-        <Text style={{ color: "#fff", fontWeight: "bold" }}>📄 Baixar Exame</Text>
+        <Text style={{ color: "#fff", fontWeight: "bold" }}>
+          📄 Baixar Exame
+        </Text>
       </TouchableOpacity>
     </View>
   );
